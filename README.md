@@ -1,6 +1,7 @@
 # PWA-18 Budget Tracker ![GitHub license](https://img.shields.io/badge/license-MIT%20License-blue.svg)
 # Live Site
-https://github.com/mibrahim234/PWA-budget-tracker
+https://budget11-tracker.herokuapp.com/
+
 ## Description 
 Budget Tracker is a progressive web app that allows users to keep track of their income and expenses.
 ## Table of Contents
@@ -72,7 +73,7 @@ Link to the GIT repository: <br>
 https://github.com/mibrahim234/PWA-budget-tracker
 
 Link to the Live Page: 
-https://mibrahim234.github.io/PWA-budget-tracker/
+https://budget11-tracker.herokuapp.com/
 
 ## Contribution
 Made with ❤️ by Mohammad Ibrahim
