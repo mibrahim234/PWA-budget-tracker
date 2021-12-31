@@ -3,9 +3,16 @@ const VERSION = 'version_01';
 const CACHE_NAME = APP_PREFIX + VERSION;
 
 const FILES_TO_CACHE = [
-    "./index.html"
+  '/',
+  '/index.html',
+  '/manifest.webmanifest',
+  '/styles.css',
+  '/index.js',
+  '/idb.js',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png',
+  'https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
 ];
-
 self.addEventListener('install', function (e) {
   e.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
