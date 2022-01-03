@@ -1,11 +1,7 @@
-const APP_PREFIX = 'BudgetTracker-';     
-const VERSION = 'version_01';
-const CACHE_NAME = APP_PREFIX + VERSION;
-
 const FILES_TO_CACHE = [
   '/',
   '/index.html',
-  '/manifest.webmanifest',
+  '/manifest.json',
   '/styles.css',
   '/index.js',
   '/idb.js',
@@ -13,46 +9,60 @@ const FILES_TO_CACHE = [
   '/icons/icon-512x512.png',
   'https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
 ];
-self.addEventListener('install', function (e) {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(function (cache) {
-      console.log('installing cache : ' + CACHE_NAME)
-      return cache.addAll(FILES_TO_CACHE)
+
+const CACHE_NAME = 'static-cache-v2';
+const DATA_CACHE_NAME = 'data-cache-v1';
+
+// install
+self.addEventListener('install', (evt) => {
+  evt.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('Success - Files pre-cached');
+      return cache.addAll(FILES_TO_CACHE);
     })
-  )
+  );
+  self.skipWaiting();
 });
 
-self.addEventListener('activate', function (e) {
-    e.waitUntil(
-      caches.keys().then(function (keyList) {
-        let cacheKeeplist = keyList.filter(function (key) {
-          return key.indexOf(APP_PREFIX);
-        });
-        cacheKeeplist.push(CACHE_NAME);
-
-        return Promise.all(
-            keyList.map(function (key, i) {
-                if (cacheKeeplist.indexOf(key) === -1) {
-                    console.log('deleting cache : ' + keyList[i] );
-                    return caches.delete(keyList[i]);
-                    }
-                })
-            )
+self.addEventListener('activate', (evt) => {
+  evt.waitUntil(
+    caches.keys().then((keyList) =>
+      Promise.all(
+        keyList.map((key) => {
+          if (key !== CACHE_NAME && key !== DATA_CACHE_NAME) {
+            console.log('Removing old cache data', key);
+            return caches.delete(key);
+          }
         })
-    );
-});
-
-self.addEventListener("fetch", function (e) {
-    console.log("fetch request : " + e.request.url)
-    e.respondWith(
-        caches.match(e.request).then(function (request) {
-            if (request) {
-                console.log("responding with cache : " + e.request.url)
-                return request
-            } else {
-                console.log("file is not cached, fetching : " + e.request.url)
-                return fetch(e.request)
-            }
-        })
+      )
     )
+  );
+
+  self.clients.claim();
+});
+
+// fetch
+self.addEventListener('fetch', (evt) => {
+  if (evt.request.url.includes('/api/transaction ')) {
+    evt.respondWith(
+      caches
+        .open(DATA_CACHE_NAME)
+        .then(async (cache) => {
+          try {
+            const response = await fetch(evt.request);
+            if (response.status === 200) {
+              cache.put(evt.request.url, response.clone());
+            }
+            return response;
+          } catch (err) {
+            return await cache.match(evt.request);
+          }
+        })
+        .catch((err) => console.log(err))
+    );
+
+    return;
+  }
+
+  evt.respondWith(caches.match(evt.request).then((response) => response || fetch(evt.request)));
 });

@@ -45,9 +45,11 @@
   <script src="js/index.js"></script>
  <script src="./js/idb.js"></script>
 </body>
+<!-- function that will call itself  -->
 <script>
   (function() {
     if("serviceWorker" in navigator) {
+        // if you have a service worker in your browser we will run out service worker file 
       navigator.serviceWorker.register("./service-worker.js")
         .then(() => console.log("Service Worker registered successfully."))
         .catch(error => console.log("Service Worker registration failed:", error));
